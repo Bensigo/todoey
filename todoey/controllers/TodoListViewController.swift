@@ -9,22 +9,36 @@
 import UIKit
 
 class TodoListViewController: UITableViewController {
-    var itemArray = ["Clean up", "submit application porfilo","Code ios swift", "movie"]
+    var itemArray = [Todo]()
     
     let userDefault = UserDefaults.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        if let items = userDefault.array(forKey: "TodoListArray") as? [String] {
+        if let items = userDefault.array(forKey: "TodoListArray") as? [Todo] {
             itemArray = items
         }
+        let newItem = Todo()
+        newItem.title = "Clean up"
+        itemArray.append(newItem)
+        
+        let newItem2 = Todo()
+        newItem2.title = "Code ios swift"
+        itemArray.append(newItem2)
+        
+        let newItem3 = Todo()
+        newItem3.title = "Become a pro with ios dev"
+        itemArray.append(newItem3)
+        
     }
 
     // MARK: - tableview datasource methods
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "toDoItemCell", for: indexPath)
-        cell.textLabel?.text = itemArray[indexPath.row]
+        let item = itemArray[indexPath.row]
+        cell.textLabel?.text = item.title
+        cell.accessoryType = item.isChecked ? .checkmark : .none
         return cell
     }
     
@@ -36,12 +50,8 @@ class TodoListViewController: UITableViewController {
         // deselect cell with animation
         tableView.deselectRow(at: indexPath, animated: true)
         // get the cell being selected
-        let cell = tableView.cellForRow(at: indexPath)
-        if cell?.accessoryType == .checkmark {
-            cell?.accessoryType = .none
-        }else {
-            cell?.accessoryType = .checkmark
-        }
+        itemArray[indexPath.row].isChecked = !itemArray[indexPath.row].isChecked
+        tableView.reloadData()
     }
     // MARK: - add new todos  to our list
     @IBAction func addBtnPressed(_ sender: UIBarButtonItem) {
@@ -55,7 +65,9 @@ class TodoListViewController: UITableViewController {
             print(textField.text!)
             if textField.text != "" {
                 if let text = textField.text {
-                    self.itemArray.append(text)
+                    let newItem = Todo()
+                    newItem.title = text
+                    self.itemArray.append(newItem)
                     self.userDefault.set(self.itemArray, forKey: "TodoListArray")
                     self.tableView.reloadData()
                 }
